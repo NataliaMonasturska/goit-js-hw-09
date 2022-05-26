@@ -4,16 +4,17 @@ import "flatpickr/dist/flatpickr.min.css";
 const button = document.querySelector('button[data-start]')
 const input = document.querySelector('#datetime-picker')
 const timer = document.querySelector('.timer')
-const timerDays = timer.querySelector('value[data-days]')
-const timerHours = timer.querySelector('value[data-hours]')
-const timerMinutes = timer.querySelector('value[data-minutes]')                         
-const timerSeconds = timer.querySelector('value[data-seconds]') 
+const timerDays = timer.querySelector('.value[data-days]')
+const timerHours = timer.querySelector('.value[data-hours]')
+const timerMinutes = timer.querySelector('.value[data-minutes]')                         
+const timerSeconds = timer.querySelector('.value[data-seconds]') 
+
 
 button.setAttribute("disabled","true");         
 let nowDate = new Date();
 let differenceTime = 0;
-// let isDisabled = false;
-// console.log(nowDate.getTime());
+let timerSelectedDates = 0;
+
 
 const options = {
   enableTime: true,
@@ -21,25 +22,18 @@ const options = {
   defaultDate: new Date(),
     minuteIncrement: 1,
   
-    onClose(selectedDates) {
-      differenceTime = selectedDates[0].getTime() - nowDate   
+  onClose(selectedDates) {
+      timerSelectedDates = selectedDates[0].getTime();
+    differenceTime = timerSelectedDates - nowDate;  
+      
         if (differenceTime > 0 ) {
-            // isDisabled = true; 
-            button.addEventListener('click', (e) => {
-                e.currentTarget.setAttribute("disabled", "true");  
-                input.setAttribute("disabled", "true");
-                setInterval(() => {
-                  const { days, hours, minutes, seconds } = convertMs(selectedDates[0].getTime() - Date.now());
-                  console.log(x);
-                  drawingToInput(...x);
-                
-                }, 1000)
-            })
+         
+            button.addEventListener('click', onClickStartTimer)
            button.removeAttribute("disabled")
-             console.log(differenceTime);
+           
         }
         else {
-            // isDisabled = false; 
+           
             button.setAttribute("disabled","true");  
 
             window.alert("Please choose a date in the future");
@@ -50,7 +44,7 @@ const options = {
 
 flatpickr("#datetime-picker", options)
 
-function padStartTimer(value) {
+function addLeadingZero(value) {
   return String(value).padStart(2, '0') 
 }
 
@@ -62,20 +56,42 @@ function convertMs(ms) {
   const day = hour * 24;
 
   // Remaining days
-  const days = padStartTimer(Math.floor(ms / day));
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = padStartTimer(Math.floor((ms % day) / hour));
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = padStartTimer(Math.floor(((ms % day) % hour) / minute));
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = padStartTimer( Math.floor((((ms % day) % hour) % minute) / second));
+  const seconds = addLeadingZero( Math.floor((((ms % day) % hour) % minute) / second));
 
   return { days, hours, minutes, seconds };
 }
 
-function drawingToInput({ days, hours, minutes, seconds }) {
-  timerDays.value = days;
-  timerHours.value = `${hours}`;
-  timerMinutes.value = `${minutes}`;
-  timerSeconds.value = `${seconds}`;
+function drawingToInput(obj) {
+
+  timerDays.textContent = obj.days;
+  timerHours.textContent = obj.hours;
+  timerMinutes.textContent = obj.minutes;
+  timerSeconds.textContent = obj.seconds;
+  
+}
+
+function onClickStartTimer(e) {
+   
+  e.currentTarget.setAttribute("disabled", "true");
+  input.setAttribute("disabled", "true");
+  const intervalId = setInterval(() => {
+             
+    const obj = convertMs(timerSelectedDates - Date.now());
+    console.log(obj);
+   
+    drawingToInput(obj);
+     if (timerSelectedDates - Date.now() < 1000) {
+      clearInterval(intervalId);
+                  }
+  }
+                 
+                
+, 1000)
+            
 }
