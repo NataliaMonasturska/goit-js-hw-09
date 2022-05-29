@@ -12,23 +12,28 @@ stop.addEventListener('click', stopColor)
 function startColor() {
        if (!IsDisabled) {
         return;
-    }
-   
+       }
+    start.setAttribute("disabled", "true"); 
+    stop.removeAttribute("disabled")
+    IsDisabled = false;
     timerId = setInterval(() => {
-        body.style.backgroundColor = getRandomHexColor();
+    body.style.backgroundColor = getRandomHexColor();
 
     }, 1000,);
 
-    IsDisabled = false;
+   
 }
 
 function stopColor() {
         if (IsDisabled) {
         return;
-    }
+        }
+    
     clearInterval(timerId); 
-   
-     IsDisabled = true;
+    start.removeAttribute("disabled")
+    stop.setAttribute("disabled", "true"); 
+    IsDisabled = true;
+
 }
 
 function getRandomHexColor() {
